@@ -3,14 +3,14 @@
 据腾讯安全实验室发布的 2014年手机ROOT安全报告显示，为追求Android系统更高的可玩性或者删除手机系统上不需要的软件等，许多用户选择ROOT手机，ROOT手机用户也在快速增长，ROOT用户目前已占据Android用户总数的27.44%。[腾讯手机ROOT安全报告]
 
 ##选题背景
-得益于其开放性，Android操作系统已成为当下最流行的手机操作系统。据国外著名统计机构IDC的调查显示，Android已经占据了82.8%的手机智能操作系统市场份额[引用1]。Android系统为了提供安全性，主要提供了两层安全特性：
+得益于其开放性，Android操作系统已成为当下最流行的手机操作系统。据国外著名统计机构IDC的调查显示，Android已经占据了82.8%的手机智能操作系统市场份额[引用1]。Android系统为了提高安全性，主要提供了两层安全特性：
 
 1. Linux内核提供的基于用户的应用沙箱
 	Android将每个应用都当作一个新用户，并为其分配一个低权限的用户ID，每个应用都运行在一个单独的虚拟机中，并且只可以访问属于自己的文件。
-2. Android系统新增的应用申请-用户授权的权限模型。
+2. Android系统新增的应用权限申请-用户授权的权限模型。
 	Android平台上，每个应用都需要声明所用到的权限，当应用安装时，由用户决定是否授权，正常情况下，应用无法执行未授权的操作。
 	
-当Android设备被ROOT后，恶意软件可以轻松获得ROOT权限，导致第一层安全特性完全失效，恶意软件可以访问其他任何应用的私有文件。
+当Android设备被ROOT后，恶意软件可以轻松获得ROOT权限，导致第一层安全特性完全失效，恶意软件可以访问其他任何应用的私有文件，引发严重安全问题。
 
 ### 被ROOT的设备越来越多
 市场上发售的Android手机，绝大度多数都预装了各种各样的应用软件，平均每部拥有8.2个预装软件[1]，严重影响用户手机使用。为了卸载这些预装软件，唯一的办法就是将手机ROOT，然后用相关工具进行卸载。此外，一些极客用户为了获得对手机的更多控制，也选择将手机进行ROOT。据腾讯发布的ROOT安全报告显示，ROOT手机用户正在快速增长，ROOT用户目前已占据Android用户总数的27.44%[2]。
@@ -75,10 +75,21 @@
 ##国内外研究现状
 ### 研究现状
 
-TODO
+TODO 参考文献不够，去看那3篇和ROOT相关的文献的参考文献。
+扩展Android的权限机制，防止用户隐私（如联系人信息等）泄露和阻止用户未授权的行为（如拨打电话灯）
 SharedPreferences保护方案
 
-为了应对Android面临的安全威胁，Android安全是近年来的研究热点，这些研究大体可以分为两类：Android权限管理系统的增强和用户隐私数据的保护。
+为了应对Android面临的安全威胁，Android安全是近年来的研究热点，这些研究大体可以分为两类：Android权限管理系统的增强、针对权限提升攻击的检测与防护和针对已ROOT设备的安全防护方案。其中，前两类研究，已经比较成熟，而最后一类研究尚在起步阶段，相关研究比较少。这两类研究的目标都是保护用户数据安全和防止造成经济损失。
+
+第一类，Android权限管理系统的增强。由于Android的权限模型采用的是All-or-Nothing模式，用户安装应用时要么接受所有的权限申请，要不放弃安装。这类研究，主要研究如何允许用户只对应用进行部分授权，以防止应用被过度授权。
+
+第二类，针对权限提升攻击的检测与防护。这类研究，主要研究如何检测应用是否有权限提升攻击的风险，和如何防止权限提升攻击。
+
+第三类，针对已ROOT设备的安全防护。由于当Android设备被用户ROOT之后，前面两类研究提出的种种安全方案都将失效，本类研究主要研究Android设备被ROOT之后，如何去保证数据安全。文献[9]列举了Android自带权限模型的三个弱点，并指出了当Android被ROOT之后，恶意软件可针对前面提出的三个弱点的两种攻击方法。文献[12]是基于文献[9]而展开的研究，针对文献[9]指出的三个弱点，分别提出了相应的保护方案。文献[8]首先指出了ROOT带来的一系列安全威胁，然后提出了一种增强的ROOT管理框架ROOTGuard，该框架会实时监控已授予ROOT权限的应用的行为，并根据用户设定的策略，决定是否对当前行为进行授权。
+
+针对已ROOT设备的安全防护方面的研究，现在还比较少，且考虑的安全威胁不够全面，比如现在尚未有考虑第三方应用数据安全方面的研究，但随着已ROOT的Android设备越来越多，这方面的研究，将成为未来Android安全研究的一个重要方面。
+
+
 ### 目前研究中存在的问题
 当前Android安全方面的研究，虽然热门，但有两方面的问题被忽视了。
 
@@ -167,3 +178,23 @@ SharedPreferences保护方案
 2. 2014年手机ROOT安全报告
 3. Insecure Local Storage: Shared Preferences - InfoSec Resources(网页，为知收藏)
 4. IDC调查报告（http://www.idc.com/prodserv/smartphone-os-market-share.jsp）
+5. Android访问控制机制安全增强方案
+7. An Android Security Extension to Protect Personal Information against Illegal Accesses and Privilege Escalation Attacks
+8. Anroid权限提升漏洞攻击的检测
+11. RootGuard: Protecting Rooted Android Phones
+12. Once Root Always a Threat: Analyzing the Security Threats of Android Permission System
+13. android系统上权限提升的安全增强框架
+14. Privilege Escalation Attacks on Android
+13. Before Unrooting your Android Phone, Patching up Permission System First
+14. Android权限提升攻击检测技术的研究
+14. 以下为未读
+15. LifeHacker: Top 10 reasons to root your android phone, http://lifehacker.com/ top-10-reasons-to-root-your-android-phone-1079161983
+16. Nauman, M., Khan, S., Zhang, X.: Apex: extending android permission model and enforcement with user-defined runtime constraints. In: 5th ACM CCS (2010)
+17. Au, K.W.Y., Zhou, Y.F., Huang, Z., Lie, D.: Pscout: analyzing the android per- mission specification. In: ACM CCS (2012)
+18. Davi, L., Dmitrienko, A., Egele, M., Fischer, T., Holz, T., Hund, R., Nu ̈rnberger, S., Sadeghi, A.R.: Mocfi: A framework to mitigate control-flow attacks on smart- phones. In: NDSS (2012)
+19. Analyzing Inter-application Communication in Android
+20. Android Permissions Demystified,
+21. RGBDroid:anovelresponse-basedapproachto android privilege escalation attacks.
+22. Dissectingandroidmalware:Characterizationandevolution
+23. Android. Android open source project, android security overview
+24. Apex: extending Android permission model and enforcement withuser-defined runtime constraints
