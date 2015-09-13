@@ -75,15 +75,18 @@
 ##国内外研究现状
 ### 研究现状
 
-TODO 参考文献不够，去看那3篇和ROOT相关的文献的参考文献。
-扩展Android的权限机制，防止用户隐私（如联系人信息等）泄露和阻止用户未授权的行为（如拨打电话灯）
-SharedPreferences保护方案
-
 为了应对Android面临的安全威胁，Android安全是近年来的研究热点，这些研究大体可以分为两类：Android权限管理系统的增强、针对权限提升攻击的检测与防护和针对已ROOT设备的安全防护方案。其中，前两类研究，已经比较成熟，而最后一类研究尚在起步阶段，相关研究比较少。这两类研究的目标都是保护用户数据安全和防止造成经济损失。
 
-第一类，Android权限管理系统的增强。由于Android的权限模型采用的是All-or-Nothing模式，用户安装应用时要么接受所有的权限申请，要不放弃安装。这类研究，主要研究如何允许用户只对应用进行部分授权，以防止应用被过度授权。
+第一类，Android权限管理系统的增强。由于Android的权限模型采用的是All-or-Nothing[解释]模式，用户安装应用时要么接受所有的权限申请，要不放弃安装。这类研究，主要研究如何允许用户只对应用进行部分授权，以防止应用被过度授权。文献[a1]首先指出了Android权限框架中存在的一些问题，然后提出了一种基于加密的增强方案，该方案会在文件系统上面增加安全保护模块，该模块首先会对所有用户文件进行加密处理，当应用访问用户文件时，先判断该应用是否是恶意应用，然后允许或拒绝访问。文献[a2]提出一种对应用进行部分授权的方案，该方案会首先修改已安装应用的AndroidManifest.xml文件，删除用户不希望授予的权限，然后在超级用户模式下，重新打包，并后台静默替换原应用来实现。文献a[3]提出一种自定义的策略模型，该模型描述应用在运行时的权限限制，如允许方案那些资源、允许什么时候访问等。然后，在应用运行过程中，提取系统调用，并构造控制流图，最后根据用户自定义的策略文件，来判断应用是否可以执行相关权限操作。文献[a4]针对应用运行时所使用的权限和安装时所申请的权限不同，提出一种让用户参与决策的权限扩展方案，该方案实时检测应用运行中的权限请求，提示用户做出决策，并根据用户决定，允许或拒绝相关权限访问。文献a[5]对Androi的权限系统进行了安全分析，发现其有两大方面的安全问题：Android针对Permission机制的优化，会带来安全风险；用户Permission确认过程中，存在安全隐患。并演示了一种通过修改package.xml进行权限提升攻击的方法。
+现在针对Android权限管理系统的增强方面的研究，主要存在两个问题：
+1. 会导致应用因获取不到相关权限而崩溃。
+2. 很多方案会实时检测应用的权限申请，对性能影响较大。
+此外，Google已经注意到了Android权限系统的问题，并在Android 6[引用说明]中增强了权限管理系统，用户可以对应用进行部分授权，并可以对已授予的权限进行撤销操作。因此，目前针对Android权限管理系统增强方面的研究，已经告一个段落。
 
-第二类，针对权限提升攻击的检测与防护。这类研究，主要研究如何检测应用是否有权限提升攻击的风险，和如何防止权限提升攻击。
+第二类，针对权限提升攻击的检测与防护。这类研究，主要研究如何检测应用是否有权限提升攻击的风险，和如何防止权限提升攻击。文献[b5]首次提出了权限提升攻击，即拥有较少权限的应用，可以访问用户较多权限的应用，最终执行本身未被授权的操作。文献还详细分析了Android平台的安全机制，并演示了一种权限提升攻击。文献[b1]提出一种基于敏感权限标记的检测方法，通过提取主动访问程序和被访问程序的权限集合，并求出公共权限集合，当被访问程序访问一些需要敏感权限的数据时，检查访问程序和被访问程序的公共权限集合是否包含该敏感权限，如果包含，则允许访问，否则拒绝访问。文献[b2]提出了两种检测权限提升攻击的方法，第一种是应用安装前的静态检查，根据应用是否保护安全相关权限，来判断应用是否安全。第二种是一种动态检测方法，在应用运行期间，实时检测其IPC调用链，如果违反相关规则（如应用X1访问应用X2,利用X2,打开浏览器X3,下载恶意代码），来决定该IPC访问拒绝与否。文献[b3]提出了一种权静态检测方法，该方法通过反编译目标应用，并扫描是否包含公开组件，如果包含公开组件，则进一步检查这些组件在进行危险操作之前，是否对调用拥有的权限进行检查，如果没有对调用者所拥有的权限进行检查，那么该应用存在权限提升攻击的风险。文献[b6]提出了一种针对应用商店的基于权限的恶意软件检测方法，应用商店开发者不断收集恶意软件的特征，形成一个恶意软件特征集，当开发者提交新软件时，抽取其特征，并和已有特征集比较，计算相似性，并根据相似决定得是否接受该软件。本方案，试图从源头上解决恶意软件的传播。文献[b7]提出一种基于SVM的恶意软件检测方法，该SVM的输入为软件的抽象行为（Intent的发送和资源的访问）。该检测方法会先提取大量正常软件和恶意软件的抽象行为，并对SVM进行训练。当新安装的软件运行时，会提取其抽象行为，并通过SVM判断是否是恶意软件。文献[b13]提出一种结合静态分析和动态分析的恶意软件检测方法，该方法会首先对软件进行反编译，然后扫描其中是否包含预定义的模式，如果有，则判定为恶意软件。如果通过了静态分析，则进行动态分析，动态分析的过程中，会执行该软件，并监控其对系统资源的访问，是否和预定义模式一样，如果一样，怎么判定为恶意软件。这方面的研究，目前相对较为成熟，也是主要安全厂商研究的重点，但这方面的研究仍然存在一些问题：
+1. 工作量大，需要大量收集恶意软件的特征。
+2. 大多采用已知恶意软件的特征，导致对未知恶意软件效果欠佳。
+3. 没有考虑ROOT带来的风险。
 
 第三类，针对已ROOT设备的安全防护。由于当Android设备被用户ROOT之后，前面两类研究提出的种种安全方案都将失效，本类研究主要研究Android设备被ROOT之后，如何去保证数据安全。文献[9]列举了Android自带权限模型的三个弱点，并指出了当Android被ROOT之后，恶意软件可针对前面提出的三个弱点的两种攻击方法。文献[12]是基于文献[9]而展开的研究，针对文献[9]指出的三个弱点，分别提出了相应的保护方案。文献[8]首先指出了ROOT带来的一系列安全威胁，然后提出了一种增强的ROOT管理框架ROOTGuard，该框架会实时监控已授予ROOT权限的应用的行为，并根据用户设定的策略，决定是否对当前行为进行授权。
 
@@ -197,4 +200,48 @@ SharedPreferences保护方案
 21. RGBDroid:anovelresponse-basedapproachto android privilege escalation attacks.
 22. Dissectingandroidmalware:Characterizationandevolution
 23. Android. Android open source project, android security overview
-24. Apex: extending Android permission model and enforcement withuser-defined runtime constraints
+24. PScout: Analyzing the Android Permission Specification
+25. Android Permission机制的实现与安全分析
+26. Curbing Android Permission Creep
+27. A Small But Non-negligible Flaw in the Android Permission Scheme
+28. Understanding Android Security
+29. Dissecting Android Malware: Characterization and Evolution
+30. A study of Android application security
+31. Dynamic Protection Technology for Privilege Escalation Attack on Android
+
+##root相关参考文献 c*
+1. RootGuard: Protecting Rooted Android Phones
+2. Once Root Always a Threat: Analyzing the Security Threats of Android Permission System
+3. Before Unrooting your Android Phone, Patching up Permission System First
+4. 2014年手机ROOT安全报告
+
+
+##权限管理系统的增强 a
+2. A Novel Strategy to Enhance the Android Security Framework
+4. Enhancing Access Control in Android Operating System Using User Granted Selective Permissions
+5. Apex: Extending Android Permission Model and
+Enforcement with User-defined Runtime Constraints
+6. A Framework for Providing Selective Permissions to Android Applications
+6. Android Permission机制的实现与安全分析
+11. 基于Android权限机制的动态隐私保护模型
+
+
+##针对Android的攻击的检测与防护 b
+1. Android访问控制机制安全增强方案 *
+1. Anroid权限提升漏洞攻击的检测 *
+2. Android权限提升攻击检测技术的研究 *
+2.  Android Permission System Violation: Case Study and Refinement
+3. Privilege Escalation Attacks on Android 
+3. Permission Based Malware Protection Model for Android Application
+11. RobotDroid: A Lightweight Malware Detection Framework On Smartphones
+12. An android application sandbox system for suspicious software detection.
+13. TaintDroid: an Information-Flow Tracking System for Real- time Privacy Monitoring on Smartphones
+14. On Lightweight Mobile Phone Application
+15. Android Permissions Demystified
+16. Android安全机制分析与解决方案初探
+17. An android application sandbox system for suspicious software detection
+17. 缺点，静态检测，需要反编译软件进行人工分析，不能实时判定新安装的软件是否为恶意软件，动态方法，性能影响较大，且效果受先验知识影响。
+
+##其他
+
+
